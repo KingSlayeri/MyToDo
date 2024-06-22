@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 
-class myButton extends StatelessWidget {
+// ignore: must_be_immutable
+class MyButton extends StatelessWidget {
   final String text;
   
   VoidCallback onPressedl;
-  myButton({
+  MyButton({
     super.key,
     required this.text,
     required this.onPressedl,

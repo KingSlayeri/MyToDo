@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:mytodo/data/database.dart';
 import 'package:mytodo/utilities/dialog_box.dart';
 import 'package:mytodo/utilities/todo_tile.dart';
 
@@ -10,24 +12,35 @@ class HomePage extends StatefulWidget{
   
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> { 
+
+  final _myBox = Hive.box('The Box');
+  ToDoDatabase db =ToDoDatabase();
+
+  @override
+  void initState() {
+
+    if (_myBox.get("TODOLIST") == null) {
+      db.createInitData();
+      
+    }
+    else{
+      db.loadData();
+    }
+   
+   super.initState();
+  }
 
 final _controller = TextEditingController();
 
-//task list
-List toDOList = [
-
-  "LOve of Jesus Christ", false,
-  "Add A NEW TASK", false
-
-];
 
 
    
    checkBoxChanged(bool? value, int index){
     setState(() {
-      toDOList[index][1] = !toDOList[index][1];
+      db.toDOList[index][1] = !db.toDOList[index][1];
     });
+    db.updateDataBase();
 
     
   }
@@ -36,8 +49,10 @@ List toDOList = [
   void deleteTheTask(int index){
 
     setState(() {
-      toDOList.remove(index);
+      db.toDOList.remove(index);
     });
+        db.updateDataBase();
+  
   }
 
 
@@ -58,11 +73,11 @@ List toDOList = [
       
 
         body: ListView.builder(
-          itemCount: toDOList.length,
+          itemCount: db.toDOList.length,
           itemBuilder: (context, index) {
             return ToDoTile(
-            taskName: toDOList[index][0],
-            taskStatus: toDOList[index][1],
+            taskName: db.toDOList[index][0],
+            taskStatus: db.toDOList[index][1],
             onChanged: (value) => checkBoxChanged(value, index),
             deleteTask: (context) => deleteTheTask,
             );
@@ -75,8 +90,11 @@ List toDOList = [
   //Save new task
    void saveTask(){
 
-    toDOList.add([_controller.text, false]);
+    db.toDOList.add([_controller.text, false]);
     _controller.clear();
+
+        db.updateDataBase();
+
 
    }
 
@@ -96,5 +114,7 @@ List toDOList = [
       );
      },
      );
+         db.updateDataBase();
+
   }
   }
